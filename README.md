@@ -1,0 +1,1 @@
+My base project setup for node-typescript server. 
