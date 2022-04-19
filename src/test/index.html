@@ -1,0 +1,12 @@
+<html>
+  <script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
+  <script>
+    var socket = io.connect('/');
+    socket.on('connect', function (data) {
+      console.log('Got connected:', data);
+    });
+  </script>
+  <body>
+    ....
+  </body>
+</html>

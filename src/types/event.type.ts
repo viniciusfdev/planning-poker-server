@@ -1,20 +1,26 @@
-export type IOEvents = 'connection';
+export type IOEvents = 'connection' | 'connection_error';
 
-export interface ServerToClientEvents {
+export type AppSocketEvents =
+  | 'disconnecting'
+  | 'disconnect'
+  | 'error'
+  | 'create-room'
+  | 'enter-room'
+  | 'setup-room'
+  | 'vote-room'
+  | 'reset-room'
+  | 'reveal-room';
+
+export type ServerToClientEvents = {
   noArg: () => void;
   basicEmit: (a: number, b: string, c: Buffer) => void;
   withAck: (d: string, callback: (e: number) => void) => void;
-}
+};
 
-export interface ClientToServerEvents {
-  hello: () => void;
-}
+export type ClientToServerEvents = {
+  [eventName in AppSocketEvents]: () => void;
+};
 
-export interface InterServerEvents {
+export type InterServerEvents = {
   ping: () => void;
-}
-
-export interface SocketData {
-  name: string;
-  age: number;
-}
+};

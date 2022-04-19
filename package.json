@@ -11,7 +11,7 @@
     "docker-start:prod": "docker run --name server-ntp -d -p 9900:9000 --env-file .env.prod server-ntp",
     "docker-build": "docker build -t server-ntp .",
     "build": "rimraf ./build && tsc",
-    "start:dev": "env $(cat .env.dev) nodemon",
+    "start:dev": "env $(cat .env.dev) nodemon index.ts",
     "start": "npm run build && node -r dotenv/config build/index.js dotenv_config_path=.env.prod",
     "lint": "eslint . --ext .ts",
     "prettier-format": "run-script-os",
@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "dotenv": "^10.0.0",
+    "nanoid": "^3.3.3",
     "socket.io": "^4.4.1"
   },
   "devDependencies": {
