@@ -1,6 +1,18 @@
-import { createServer } from 'http';
+import { Server } from 'socket.io';
+import {
+  ClientToServerEvents,
+  InterServerEvents,
+  ServerToClientEvents,
+  SocketData,
+} from './types/event.type';
 
-const PORT = process.env.PORT || 9000;
-const http = createServer();
+const PORT = Number(process.env.PORT) || 9000;
 
-http.listen(PORT, () => console.log('Server listening at', PORT));
+export default function initialize(conHandler: any) {
+  return new Server<
+    ClientToServerEvents,
+    ServerToClientEvents,
+    InterServerEvents,
+    SocketData
+  >(PORT);
+}
