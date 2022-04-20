@@ -3,6 +3,10 @@ export class Logger {
     return `[${new Date().toISOString()}](${context})::${message}`;
   }
 
+  static info(context: string, message: string | number) {
+    console.info(Logger.formatLog(context, message));
+  }
+
   static trace(context: string, message: string | number) {
     console.trace(Logger.formatLog(context, message));
   }

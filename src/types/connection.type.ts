@@ -1,14 +1,7 @@
 import { Server, Socket } from 'socket.io';
-import {
-  ClientToServerEvents,
-  InterServerEvents,
-  ServerToClientEvents,
-} from './event.type';
+import { ClientToServerEvents, InterServerEvents, ServerToClientEvents } from './event.type';
 
-export type SocketData = {
-  name: string;
-  role: string;
-};
+export type SocketData = string;
 
 export type AppServer = Server<
   ClientToServerEvents,
@@ -20,11 +13,15 @@ export type AppServer = Server<
 /**
  * Handle with an socket event .
  */
-export type AppEventHandler = (
+export type AppEventHandler<T = any> = (
   /**
    * A Socket is the fundamental class for interacting with the client. It inherits all the methods of the Node.js EventEmitter, like emit, on, once or removeListener. Contains information about the socket, like data, id and expose Socket event methods.
    */
   socket: AppSocket,
+  /**
+   * Any other custom args for an event handler
+   */
+  args: T,
   /**
    * The Server instance (often called io in the code examples) has a few attributes that may be of use in your application. It also inherits all the methods of the main namespace, like namespace.use() (see here) or namespace.allSockets().
    */

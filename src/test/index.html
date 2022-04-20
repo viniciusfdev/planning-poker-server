@@ -1,10 +1,11 @@
 <html>
   <script src="https://cdn.socket.io/4.4.1/socket.io.js"></script>
   <script>
-    var socket = io.connect('/');
+    var socket = io.connect('http://localhost:9000');
     socket.on('connect', function (data) {
       console.log('Got connected:', data);
     });
+    socket.emit('create-room')
   </script>
   <body>
     ....

@@ -1,5 +1,7 @@
 import { errorHandler as onError } from './common/errors';
+import { Logger } from './common/log';
 import {
+  onConnection,
   onCreateRoom,
   onDisconnect,
   onDisconnecting,
@@ -13,15 +15,16 @@ import { AppServer, AppSocket } from './types/connection.type';
 
 export default function (app: AppServer): AppServer {
   app.on('connection', (socket: AppSocket) => {
+    onConnection(socket, undefined, app);
     socket.on('error', onError);
-    socket.on('disconnect', () => onDisconnect(socket, app));
-    socket.on('disconnecting', () => onDisconnecting(socket, app));
-    socket.on('create-room', () => onCreateRoom(socket, app));
-    socket.on('enter-room', () => onEnterRoom(socket, app));
-    socket.on('setup-room', () => onSetupRoom(socket, app));
-    socket.on('vote-room', () => onVoteRoom(socket, app));
-    socket.on('reveal-room', () => onRevealRoom(socket, app));
-    socket.on('reset-room', () => onResetRoom(socket, app));
+    socket.on('disconnect', (reason) => onDisconnect(socket, { reason }, app));
+    socket.on('disconnecting', (reason) => onDisconnecting(socket, { reason }, app));
+    socket.on('create-room', (args) => onCreateRoom(socket, args, app));
+    socket.on('enter-room', (args) => onEnterRoom(socket, args, app));
+    socket.on('setup-room', (args) => onSetupRoom(socket, args, app));
+    socket.on('vote-room', (args) => onVoteRoom(socket, args, app));
+    socket.on('reveal-room', (args) => onRevealRoom(socket, args, app));
+    socket.on('reset-room', (args) => onResetRoom(socket, args, app));
   });
 
   return app;

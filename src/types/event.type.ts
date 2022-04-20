@@ -1,6 +1,6 @@
 export type IOEvents = 'connection' | 'connection_error';
 
-export type AppSocketEvents =
+export type ServerSocketEvents =
   | 'disconnecting'
   | 'disconnect'
   | 'error'
@@ -11,14 +11,14 @@ export type AppSocketEvents =
   | 'reset-room'
   | 'reveal-room';
 
+export type ClientSocketEvents = 'room-updated';
+
 export type ServerToClientEvents = {
-  noArg: () => void;
-  basicEmit: (a: number, b: string, c: Buffer) => void;
-  withAck: (d: string, callback: (e: number) => void) => void;
+  [eventName in ClientSocketEvents]: (...any: any) => void;
 };
 
 export type ClientToServerEvents = {
-  [eventName in AppSocketEvents]: () => void;
+  [eventName in ServerSocketEvents]: (...any: any) => void;
 };
 
 export type InterServerEvents = {
