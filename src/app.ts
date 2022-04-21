@@ -1,6 +1,7 @@
 import { errorHandler as onError } from './common/errors';
 import { Logger } from './common/log';
 import {
+  onCloseRoom,
   onConnection,
   onCreateRoom,
   onDisconnect,
@@ -25,6 +26,7 @@ export default function (app: AppServer): AppServer {
     socket.on('vote-room', (args) => onVoteRoom(socket, args, app));
     socket.on('reveal-room', (args) => onRevealRoom(socket, args, app));
     socket.on('reset-room', (args) => onResetRoom(socket, args, app));
+    socket.on('close-room', (args) => onCloseRoom(socket, args, app));
   });
 
   return app;

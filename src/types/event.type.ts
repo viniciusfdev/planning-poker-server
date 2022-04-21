@@ -9,9 +9,10 @@ export type ServerSocketEvents =
   | 'setup-room'
   | 'vote-room'
   | 'reset-room'
-  | 'reveal-room';
+  | 'reveal-room'
+  | 'close-room';
 
-export type ClientSocketEvents = 'room-updated';
+export type ClientSocketEvents = 'room-updated' | 'room-expiration' | 'room-closed';
 
 export type ServerToClientEvents = {
   [eventName in ClientSocketEvents]: (...any: any) => void;

@@ -8,6 +8,7 @@ export interface Room {
   name: string;
   admin: string;
   issue?: Issue;
+  createdAt: Date;
   status: 'idle' | 'voting' | 'counting';
   members: { [member: string]: string };
   votes?: { [member: string]: number };

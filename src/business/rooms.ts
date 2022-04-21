@@ -7,13 +7,36 @@ export default class Rooms {
   static create(name: string, admin: string, adminName: string): Room {
     const room: Room = {
       id: nanoid(16),
+      createdAt: new Date(),
       members: { [admin]: adminName },
       status: 'idle',
       votes: {},
       admin,
       name,
     };
+
     Memory.set(room.id, room);
+    return room;
+  }
+
+  /** Returns a room. */
+  static retrieve(roomId: string): Room {
+    const room = Memory.get<Room>(roomId);
+
+    if (room == null) {
+      throw Error(`The room /${roomId}/ expires or don't exists.`);
+    }
+
+    return room;
+  }
+
+  /**
+   * Update any aspect of a room
+   */
+  static update(roomId: string, roomUpdate: Partial<Room>): Room {
+    const room = Rooms.retrieve(roomId);
+    Object.assign(room, roomUpdate);
+    Memory.set(roomId, room);
     return room;
   }
 
@@ -21,48 +44,28 @@ export default class Rooms {
    * Join a member in the given room.
    */
   static enter(roomId: string, member: string, memberName: string): Room {
-    const room = Memory.get<Room>(roomId);
-
-    if (room == null) {
-      throw Error(`The room /${roomId}/ expires or don't exists.`);
-    }
-
+    const room = Rooms.retrieve(roomId);
     room.members[member] = memberName;
     Memory.set(roomId, room);
     return room;
   }
 
+  /**
+   * Remove a member from the given room.
+   */
   static leave(roomId: string, member: string): Room {
-    const room = Memory.get<Room>(roomId);
-
-    if (room == null) {
-      throw Error(`The room /${roomId}/ expires or don't exists.`);
-    }
-
+    const room = Rooms.retrieve(roomId);
     if (room.votes) delete room.votes[member];
     delete room.members[member];
     Memory.set(roomId, room);
     return room;
   }
 
-  static update(roomId: string, roomUpdate: Partial<Room>): Room {
-    const room = Memory.get<Room>(roomId);
-
-    if (room == null) {
-      throw Error(`The room /${roomId}/ expires or don't exists.`);
-    }
-
-    Object.assign(room, roomUpdate);
-    Memory.set(roomId, room);
-    return room;
-  }
-
+  /**
+   * Set the current room vote value for a member.
+   */
   static vote(roomId: string, member: string, vote: number): Room {
-    const room = Memory.get<Room>(roomId);
-
-    if (room == null) {
-      throw Error(`The room /${roomId}/ expires or don't exists.`);
-    }
+    const room = Rooms.retrieve(roomId);
 
     if (room.votes != null) {
       room.votes[member] = vote;

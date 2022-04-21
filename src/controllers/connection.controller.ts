@@ -20,6 +20,7 @@ export const onDisconnect: AppEventHandler = (socket, _, io) => {
 /**
  * Check the socket rooms.
  * - If the room is empty, delete the room.
+ * - If the admin exit the room, makes another random member the admin.
  */
 export const onDisconnecting: AppEventHandler = (socket, _, io) => {
   Logger.info('onDisconnecting', socket.id);
@@ -32,7 +33,13 @@ export const onDisconnecting: AppEventHandler = (socket, _, io) => {
     if (numClients <= 0) {
       Rooms.delete(roomId);
     } else {
-      const room = Rooms.leave(roomId, socket.id);
+      let room = Rooms.leave(roomId, socket.id);
+
+      if (socket.id === room.admin) {
+        const newAdmin = Object.keys(room.members)[0];
+        room = Rooms.update(roomId, { admin: newAdmin });
+      }
+
       socket.to(roomId).emit('room-updated', { room });
     }
   }
@@ -42,6 +49,7 @@ export const onDisconnecting: AppEventHandler = (socket, _, io) => {
  * Used to create a room.
  * - Setup admin
  * - Setup room
+ * - Setup room expiration, after a while, the room is expires
  */
 export const onCreateRoom: AppEventHandler<{ roomName: string; memberName: string }> = (
   socket,
@@ -54,6 +62,11 @@ export const onCreateRoom: AppEventHandler<{ roomName: string; memberName: strin
   socket.data = args.memberName;
   socket.join(room.id);
   socket.emit('room-updated', { room });
+
+  setTimeout(() => {
+    Rooms.delete(room.id);
+    socket.emit('room-expiration', { room });
+  });
 };
 
 /**
@@ -84,6 +97,11 @@ export const onSetupRoom: AppEventHandler<{
 }> = (socket, args, io) => {
   Logger.info('onSetupRoom', socket.id);
   throwMissingRequiredAttributes(args, ['roomId', 'config']);
+
+  if (socket.id !== Rooms.retrieve(args.roomId).admin) {
+    throw new Error('Only the room admin can config the room.');
+  }
+
   const room = Rooms.update(args.roomId, args.config);
   io.to(room.id).emit('room-updated', { room });
 };
@@ -114,9 +132,28 @@ export const onRevealRoom: AppEventHandler<{ roomId: string }> = (socket, args, 
  * - Erase votes
  * - Erase vote result
  */
-export const onResetRoom: AppEventHandler = (socket, args, io) => {
+export const onResetRoom: AppEventHandler<{ roomId: string }> = (socket, args, io) => {
   Logger.info('onResetRoom', socket.id);
   throwMissingRequiredAttributes(args, ['roomId']);
   const room = Rooms.update(args.roomId, { issue: undefined, votes: {} });
   io.to(room.id).emit('room-updated', { room });
+};
+
+/**
+ * Close the given room.
+ * - Only the admin has permission to close the room.
+ * - Deletes the room.
+ * - Kick everyone from the room;
+ */
+export const onCloseRoom: AppEventHandler<{ roomId: string }> = (socket, args, io) => {
+  Logger.info('onCloseRoom', socket.id);
+  throwMissingRequiredAttributes(args, ['roomId']);
+
+  if (socket.id !== Rooms.retrieve(args.roomId).admin) {
+    throw new Error('Only the room admin can close the room.');
+  }
+
+  Rooms.delete(args.roomId);
+  io.to(args.roomId).emit('room-closed');
+  io.socketsLeave(args.roomId);
 };
